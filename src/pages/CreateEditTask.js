@@ -52,7 +52,7 @@ export default function CreateEditTask({ editMode }) {
     <div className="content">
       <div className="card card-xl">
         <h2 className="page-title">
-          {editMode ? "Edit Task ✏️" : "Create New Task"}
+          {editMode ? "Edit Task" : "Create New Task"}
         </h2>
         <p className="muted">
           {editMode

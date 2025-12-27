@@ -66,9 +66,10 @@ export default function Tasks() {
   
         <div className="controls-actions">
           <button onClick={load}>Search</button>
-          <Link to="/tasks/new" className="btn-ghost">
+          <button><Link to="/tasks/new" className="btn-ghost">
             + New Task
-          </Link>
+          </Link></button>
+          
         </div>
       </div>
   
