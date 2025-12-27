@@ -1,52 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [user, setUser] = useState(() => {
+    const u = localStorage.getItem("user");
+    return u ? JSON.parse(u) : null;
+  });
 
-  useEffect(() => {
-    try {
-      const rawUser = localStorage.getItem("user");
-      const rawToken = localStorage.getItem("token");
-      if (rawUser) setUser(JSON.parse(rawUser));
-      if (rawToken) setToken(rawToken);
-    } catch (err) {
-      console.warn("Invalid stored auth", err);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-    }
-  }, []);
-
-  const login = (resp) => {
-    const tokenVal = resp?.token || resp?.data?.token || resp?.data?.accessToken || resp?.accessToken;
-    const userVal = resp?.user || resp?.data?.user || resp?.data?.userInfo || resp?.data;
-
-    if (tokenVal) {
-      localStorage.setItem("token", tokenVal);
-      setToken(tokenVal);
-    }
-    if (userVal) {
-      localStorage.setItem("user", JSON.stringify(userVal));
-      setUser(userVal);
-    }
+  const login = ({ token, data }) => {
+    setToken(token);
+    setUser(data.user);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(data.user));
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
     setToken(null);
     setUser(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
+  // Optional: sync state if localStorage changes (e.g., multiple tabs)
+  useEffect(() => {
+    const handleStorage = () => {
+      setToken(localStorage.getItem("token"));
+      const u = localStorage.getItem("user");
+      setUser(u ? JSON.parse(u) : null);
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);
