@@ -16,7 +16,9 @@ export default function Sidebar({ open, onClose }) {
         </nav>
 
         <div style={{ flex: 1 }} />
-        <div className="muted" style={{ fontSize: 12 }}>Simple & Responsive</div>
+        <div style={{ padding: 18, color: 'var(--muted)' }}>
+        © {new Date().getFullYear()} • <span style={{color:'var(--accent)'}}>Venkatesh T</span> • Built with ❤️
+      </div>
       </aside>
 
       {open && <div className="sidebar-backdrop" onClick={onClose} />}
