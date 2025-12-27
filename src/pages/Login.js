@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import api from "../api/client";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/client";
 
 export default function Login() {
+  const { login, token } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-
-  const { login } = useAuth();
   const nav = useNavigate();
+
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    if (token) nav("/");
+  }, [token, nav]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -22,7 +26,11 @@ export default function Login() {
         method: "POST",
         body: { email, password },
       });
+
+      // Save token and user persistently
       login(resp);
+
+      // Redirect after successful login
       nav("/");
     } catch (error) {
       console.error("Login failed", error);
@@ -34,8 +42,11 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="card card-lg">
-        <p className="muted">Login to manage your tasks</p>
+      <div className="card card-lg" style={{ maxWidth: 400, width: "90%" }}>
+        <h2 style={{ textAlign: "center", marginBottom: 12 }}>Welcome Back</h2>
+        <p className="muted" style={{ textAlign: "center", marginBottom: 20 }}>
+          Login to manage your tasks
+        </p>
 
         {err && <div className="alert">{err}</div>}
 
@@ -44,7 +55,7 @@ export default function Login() {
             <label>Email</label>
             <input
               type="email"
-              placeholder="Enter your mail"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -62,11 +73,16 @@ export default function Login() {
             />
           </div>
 
-          <button className="primary" type="submit" disabled={busy}>
+          <button
+            type="submit"
+            className="primary"
+            disabled={busy}
+            style={{ marginTop: 16 }}
+          >
             {busy ? "Logging in..." : "Login"}
           </button>
 
-          <div className="divider" />
+          <div className="divider" style={{ margin: "20px 0" }} />
 
           <p className="muted" style={{ textAlign: "center" }}>
             Don’t have an account?{" "}
